@@ -1,7 +1,7 @@
 docker service create --name jenkins-master \
 -p 50000:50000 \
 -p 8880:8080 \
---mount type=bind,source=/gfs_mount/dswarm_service_gfs_volume/jenkins_master,target=/var/jenkins_home \
+--mount source=jenkins_master_volume,target=/var/jenkins_home \
 -l traefik.enable=true \
 -l traefik.frontend.passHostHeader=true \
 -l traefik.frontend.rule="Host:jenkins.vlekh.net,http://jenkins.vlekh.net" \
@@ -12,5 +12,5 @@ docker service create --name jenkins-master \
 --replicas 1 \
 --network traefik \
 --update-delay 10s \
---constraint 'node.labels.jenkins_master.rhost == 1' \
+--constraint 'node.hostname == worker01' \
 jenkins/jenkins:lts

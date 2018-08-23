@@ -3,10 +3,11 @@
 
 docker service create \
         --name jenkins-swarm-agent \
+	--mode global \
         -e LABELS=docker-test \
         --mount "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock" \
         --mount "type=bind,source=/tmp/,target=/tmp/" \
-        --secret source=jenkins-v3,target=jenkins \
+        --secret source=jenkins-v4,target=jenkins \
         --constraint 'node.role==manager' \
         --network traefik \
         gauravjain1582/docker-swarm-jenkins-agent

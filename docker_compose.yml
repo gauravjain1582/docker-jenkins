@@ -1,0 +1,53 @@
+version: '3.5'
+services:
+
+  jenkins-master:
+    image: jenkins/jenkins:lts
+    deploy:
+      placement:
+        constraints:
+          - "node.role == manager"
+      labels:
+	- "traefik.enable=true"
+	- "traefik.frontend.passHostHeader=true"
+	- "traefik.frontend.rule=Host:jenkins.vlekh.net,http://jenkins.vlekh.net"
+	- "traefik.backend=jenkins-master"
+	- "traefik.docker.network=traefik"
+	- "traefik.entryPoint=https"
+	- "traefik.port=8080"
+    ports:
+      - 50000:50000
+      - 8880:8080
+    networks:
+      - traefik
+    volumes:
+      - /gfs_mount/dswarm_service_gfs_volume/jenkins_master:/var/jenkins_home
+
+
+  jenkins-swarm-agent:
+    image: gauravjain1582/docker-swarm-jenkins-agent
+    deploy:
+      placement:
+        constraints:
+          - "node.role == manager"
+      labels:
+        - "traefik.enable=true"
+    networks:
+      - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/:/tmp/
+    secrets:
+      - jenkins-v4
+
+secrets:
+  jenkins-v4
+    external: true
+
+#        -e LABELS=docker-test \
+#        --secret source=jenkins-v3,target=jenkins \
+
+networks:
+  traefik:
+    external: true
+    name: traefik
